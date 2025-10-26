@@ -1,4 +1,4 @@
-import { TitleInput } from '@/components/Toolbar';
+import { TitleInput } from '@/components/TitleInput';
 import { useCurrentUserStore } from '@/modules/auth/current-user.state';
 import { noteRepository } from '@/modules/notes/note.repository';
 import { useNoteStore } from '@/modules/notes/note.state';
@@ -9,7 +9,7 @@ const NoteDetail = () => {
   const [isLoading, setIsLoading] = useState(false);
   const params = useParams();
   const id = parseInt(params.id!);
-  const {currentUser} = useCurrentUserStore();
+  const { currentUser } = useCurrentUserStore();
   const noteStore = useNoteStore();
   const note = noteStore.getOne(id);
 
@@ -25,17 +25,21 @@ const NoteDetail = () => {
     setIsLoading(false);
   }
 
+  const updateNote = async (id: number, note: { title?: string; content?: string }) => {
+    const updatedNote = await noteRepository.updata(id, note);
+    if (updatedNote == null) return;
+    noteStore.set([updatedNote]);
+    return updatedNote;
+  }
 
   if (isLoading) return <div>Loading...</div>
 
   if (note == null) return <div>Note is not found.</div>
 
-  console.log(note);
-
   return (
     <div className="pb-40 pt-20">
       <div className="md:max-w-3xl lg:md-max-w-4xl mx-auto">
-        <TitleInput />
+        <TitleInput initialData={note} onTitleChange={(title) => updateNote(id, { title })} />
       </div>
     </div>
   );
