@@ -4,7 +4,7 @@ import { useNoteStore } from '@/modules/notes/note.state';
 import { useCurrentUserStore } from '@/modules/auth/current-user.state';
 import { noteRepository } from '@/modules/notes/note.repository';
 import { Note } from '@/modules/notes/note.entity';
-import { useState } from 'react';
+import { ReactHTML, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface NoteListProps {
@@ -42,6 +42,18 @@ export function NoteList({ layer = 0, parentId }: NoteListProps) {
     });
   }
 
+  const deleteNote = async (e: React.MouseEvent, noteId: number) => {
+    e.stopPropagation();
+
+    // supabase側でdelete処理
+    await noteRepository.delete(noteId);
+    // noteStore側でdelete処理 グローバルステートを更新
+    noteStore.delete(noteId);
+
+    // ホームページにリダイレクト
+    navigate('/');
+  }
+
   const moveToDetail = (noteId: number) => {
     navigate(`/notes/${noteId}`);
   }
@@ -66,6 +78,7 @@ export function NoteList({ layer = 0, parentId }: NoteListProps) {
                 onCreate={(e) => createChild(e, note.id)}
                 onClick={() => moveToDetail(note.id)}
                 expanded={expanded.get(note.id)}
+                onDelete={(e) => deleteNote(e, note.id)}
                 onExpand={(e: React.MouseEvent) => fetchChildren(e, note)} />
               {expanded.get(note.id) && (
                 <NoteList layer={layer + 1} parentId={note.id} />
