@@ -15,6 +15,7 @@ export function TitleInput({ initialData, onTitleChange }: TitleInputProps) {
     setTitle(value);
     onTitleChange(value);
   }
+
   return (
     <div className="pl-[54px] group relative">
       <TextAreaAutoSize
